@@ -1,0 +1,62 @@
+service: mxs-contact-email
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'test'}
+  runtime: python3.7
+  memorySize: 128
+  logRetentionInDays: 7
+  region: ap-southeast-1
+  deploymentBucket:
+    name: mxs-serverless-ap-share-bucket	
+    serverSideEncryption: AES256
+  apiGateway:
+    apiKeys:
+      - contact:
+          - contactPlanKey
+    usagePlan:
+      - contact:
+          quota:
+            limit: 100
+            period: MONTH
+          throttle:
+            rateLimit: 2
+            burstLimit: 10
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 'dynamodb:PutItem'
+          Resource: '*'
+
+
+plugins:
+  - serverless-deployment-bucket
+  - serverless-prune-plugin
+  - serverless-dotenv-plugin
+
+custom:
+  dotenv:
+    basePath: ./config/
+  prune:
+    automatic: true
+    number: 3
+  pythonRequirements:
+    dockerizePip: non-linux
+  deploymentBucket:
+    versioning: false
+    accelerate: true
+    blockPublicAccess: true
+
+functions:
+  website:
+    handler: handler._9NPAAbfB
+    timeout: 60
+    description: 9NPAAbfB
+    events:
+      - http:
+          path: api/oidutshnaxcom/9NPAAbfB
+          method: post
+          private: true
+          cors:
+            origin: '*'
